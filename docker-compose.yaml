@@ -40,6 +40,12 @@ services:
     depends_on:
       - mongodb
       - catalogue
+
+  mysql:
+    image: mysql:v1
+    container_name: mysql
+    networks:
+      - roboshop
   
   web:
     image: web:v1
