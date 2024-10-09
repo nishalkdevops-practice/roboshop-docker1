@@ -58,10 +58,22 @@ services:
 
   rabbitmq:
     image: rabbitmq
+    container_name: rabbitmq
+    networks: 
+    - roboshop
     environment: 
     - RABBITMQ_DEFAULT_USER=roboshop 
     - RABBITMQ_DEFAULT_PASS=roboshop123
 
+
+  payment:
+    image: payment:v1
+    container_name: payment
+    networks:
+    - roboshop
+    depends_on:
+      - shipping
+      - rabbitmq
   
   web:
     image: web:v1
@@ -75,4 +87,5 @@ services:
     - user
     - cart
     - shipping
+    - payment
  
