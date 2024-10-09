@@ -16,7 +16,7 @@ services:
     - roboshop
     depends_on:
     - mongodb
-    
+
   redis:
     image: redis
     container_name: redis
@@ -27,7 +27,7 @@ services:
     image: user:v1
     container_name: user
     networks:
-      - roboshop
+    - roboshop
     depends_on:
       - mongodb
       - redis
