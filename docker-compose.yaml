@@ -64,7 +64,7 @@ services:
       - roboshop
     volumes: 
     - source: mysql
-      target: var/lib/mysql/
+      target: /var/lib/mysql
       type: volume
 
   shipping:
@@ -86,7 +86,7 @@ services:
     - RABBITMQ_DEFAULT_PASS=roboshop123
     volumes: 
     - source: rabbitmq
-      target: var/lib/rabbitmq/
+      target: /var/lib/rabbitmq
       type: volume
 
 
