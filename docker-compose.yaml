@@ -39,7 +39,7 @@ services:
     - roboshop
     depends_on:
       - mongodb
-      - redis
+      - catalogue
   
   web:
     image: web:v1
