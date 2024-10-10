@@ -1,26 +1,21 @@
 networks:
   roboshop:
     driver: bridge
-
-volumes: 
+volumes:
   mongodb:
-  redis: 
+  redis:
   mysql:
   rabbitmq:
-
-
 services:
   mongodb:
     image: nishaldevops/mongodb:v1
     container_name: mongodb
     networks:
-    - roboshop
-    volumes: 
+      - roboshop
+    volumes:
     - source: mongodb
       target: /data/db
       type: volume
-
-
   catalogue:
     image: nishaldevops/catalogue:v1
     container_name: catalogue
@@ -28,77 +23,69 @@ services:
     - roboshop
     depends_on:
     - mongodb
-
   redis:
     image: redis
     container_name: redis
     networks:
-    - roboshop
-    volumes: 
+      - roboshop
+    volumes:
     - source: redis
       target: /data
       type: volume
-
   user:
     image: nishaldevops/user:v1
     container_name: user
     networks:
-    - roboshop
+      - roboshop
     depends_on:
       - mongodb
       - redis
-
   cart:
     image: nishaldevops/cart:v1
     container_name: cart
     networks:
-    - roboshop
+      - roboshop
     depends_on:
-      - mongodb
+      - redis
       - catalogue
-
   mysql:
     image: nishaldevops/mysql:v1
     container_name: mysql
     networks:
       - roboshop
-    volumes: 
+    volumes:
     - source: mysql
       target: /var/lib/mysql
       type: volume
-
   shipping:
     image: nishaldevops/shipping:v1
     container_name: shipping
     networks:
-    - roboshop
+      - roboshop
     depends_on:
-      - mysql
       - cart
-
+      - mysql
   rabbitmq:
     image: rabbitmq
     container_name: rabbitmq
-    networks: 
-    - roboshop
-    environment: 
-    - RABBITMQ_DEFAULT_USER=roboshop 
-    - RABBITMQ_DEFAULT_PASS=roboshop123
-    volumes: 
+    networks:
+      - roboshop
+    volumes:
     - source: rabbitmq
       target: /var/lib/rabbitmq
       type: volume
-
-
+    environment:
+    - RABBITMQ_DEFAULT_USER=roboshop
+    - RABBITMQ_DEFAULT_PASS=roboshop123
   payment:
     image: nishaldevops/payment:v1
     container_name: payment
     networks:
-    - roboshop
+      - roboshop
     depends_on:
-      - shipping
+      - cart
+      - user
       - rabbitmq
-  
   web:
     image: nishaldevops/web:v1
     container_name: web
@@ -112,4 +99,3 @@ services:
     - cart
     - shipping
     - payment
- 
