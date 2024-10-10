@@ -1,12 +1,3 @@
-const instana = require('@instana/collector');
-// init tracing
-// MUST be done before loading anything else!
-instana({
-    tracing: {
-        enabled: true
-    }
-});
-
 const mongoClient = require('mongodb').MongoClient;
 const mongoObjectID = require('mongodb').ObjectID;
 const redis = require('redis');
@@ -38,20 +29,6 @@ app.use(expLogger);
 app.use((req, res, next) => {
     res.set('Timing-Allow-Origin', '*');
     res.set('Access-Control-Allow-Origin', '*');
-    next();
-});
-
-app.use((req, res, next) => {
-    let dcs = [
-        "asia-northeast2",
-        "asia-south1",
-        "europe-west3",
-        "us-east1",
-        "us-west1"
-    ];
-    let span = instana.currentSpan();
-    span.annotate('custom.sdk.tags.datacenter', dcs[Math.floor(Math.random() * dcs.length)]);
-
     next();
 });
 
@@ -266,6 +243,7 @@ redisClient.on('ready', (r) => {
     logger.info('Redis READY', r);
 });
 
+if (process.env.MONGO == 'true') {
 // set up Mongo
 function mongoConnect() {
     return new Promise((resolve, reject) => {
@@ -282,6 +260,33 @@ function mongoConnect() {
         });
     });
 }
+}
+
+if (process.env.DOCUMENTDB == 'true') {
+function mongoConnect() {
+    return new Promise((resolve, reject) => {
+    var mongoURL = process.env.MONGO_URL || 'mongodb://username:password@mongodb:27017/users?tls=true&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false';
+    var client = mongoClient.connect(mongoURL,
+      {
+        // Mutable & Immutable
+        //tlsCAFile: `/home/roboshop/user/rds-combined-ca-bundle.pem` //Specify the DocDB; cert
+        // Container
+        tlsCAFile: `/app/rds-combined-ca-bundle.pem` //Specify the DocDB; cert
+    }, (error, client) => {
+    if(error) {
+        reject(error);
+    } else {
+        db = client.db('users');
+        usersCollection = db.collection('users');
+        ordersCollection = db.collection('orders');
+        resolve('connected');
+    }
+});
+});
+}
+}
+
+
 
 function mongoLoop() {
     mongoConnect().then((r) => {
